@@ -3,12 +3,16 @@ import sequelize from '../../helper/DataBaseConnection.js';
 import Employee from "./Employee.js";
 import Department from "./Department.js";
 class Salary extends Model {
-    getAllSalaries() {
+    getAllSalariesByEmployeeNumber(emp_no) {
         try {
-            return Salary.findAll({limit: 1, include: [Employee]});
+            return Salary.findAll( {
+                where: {
+                    emp_no: emp_no
+                }
+            });
         }
         catch(e){
-            console.error("ERROR getAllSalaries---- ", e);
+            console.error("ERROR getAllSalariesByEmployeeNumber ---- ", e);
         }
     }
 }

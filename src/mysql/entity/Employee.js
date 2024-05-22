@@ -4,7 +4,7 @@ import sequelize from '../../helper/DataBaseConnection.js';
 class Employee extends Model {
     getAllEmployees() {
         try {
-            return Employee.findAll({limit: 1000});
+            return Employee.findAll({limit: 10});
         }
         catch(e){
             console.error("ERROR getAllEmployees ---- ", e);

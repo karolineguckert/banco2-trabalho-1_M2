@@ -3,12 +3,14 @@ import sequelize from '../../helper/DataBaseConnection.js';
 import Employee from "./Employee.js";
 
 class Title extends Model {
-    getAllTitles() {
+    getAllTitlesByEmployeeNumber(emp_no) {
         try {
-            return Title.findAll({limit: 1, include: [Employee]});
+            return Title.findAll({ where: {
+                    emp_no: emp_no
+                }});
         }
         catch(e){
-            console.error("ERROR getAllTitles---- ", e);
+            console.error("ERROR getAllTitlesByEmployeeNumber ---- ", e);
         }
     }
 }
