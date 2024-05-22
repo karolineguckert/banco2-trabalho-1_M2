@@ -1,0 +1,44 @@
+import { DataTypes, Model, Op } from 'sequelize';
+import sequelize from '../../helper/DataBaseConnection.js';
+import Employee from "./Employee.js";
+
+class Title extends Model {
+    getAllTitles() {
+        try {
+            return Title.findAll({limit: 1, include: [Employee]});
+        }
+        catch(e){
+            console.error("ERROR getAllTitles---- ", e);
+        }
+    }
+}
+
+Title.init({
+    emp_no: {
+        type: Employee,
+        primaryKey: true
+    },
+    title: {
+        type: DataTypes.STRING(50),
+        allowNull: false
+    },
+    from_date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        primaryKey: true
+    },
+    to_date: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+}, {
+    sequelize,
+    modelName: 'titles',
+    timestamps: false,
+    tableName: 'titles'
+});
+
+Title.belongsTo(Employee, { foreignKey: 'emp_no' });
+Employee.hasMany(Title, { foreignKey: 'emp_no'});
+
+export default Title;
