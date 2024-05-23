@@ -3,7 +3,6 @@ import Salary from "../mysql/entity/Salary.js";
 import Title from "../mysql/entity/Title.js";
 import DepartmentEmployee from "../mysql/entity/DepartmentEmployee.js";
 import DepartmentManager from "../mysql/entity/DepartmentManager.js";
-import {MongoClient} from "mongodb";
 import MongoDataBaseConnection from "../helper/MongoDataBaseConnection.js";
 
 class UseCase {
