@@ -4,7 +4,7 @@ import sequelize from '../../helper/DataBaseConnection.js';
 class Department extends Model {
     getAllDepartments() {
         try {
-            return Department.findAll({limit: 1000});
+            return Department.findAll({});
         }
         catch(e){
             console.error("ERROR getAllDepartments---- ", e);

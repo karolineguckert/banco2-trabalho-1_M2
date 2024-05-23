@@ -8,15 +8,23 @@ import MongoDataBaseConnection from "../helper/MongoDataBaseConnection.js";
 
 class UseCase {
 
-    async getAllEmployees() {
+    async getAllEmployees(offset) {
         const employeeEntity = new Employee();
-        return employeeEntity.getAllEmployees();
+        return employeeEntity.getAllEmployees(offset);
     }
 
     async insertFirstsEmployeesFromMYSQLToMongo(){
-        this.getAllEmployees().then((resultOfEmployeesInMySQL)=> {
-            this.insertFirstRegisters(resultOfEmployeesInMySQL);
-        });
+        let offset = 0;
+        let hasNext = true;
+
+        while(hasNext) {
+            const resultOfEmployeesInMySQL = await this.getAllEmployees(offset);
+            await this.insertFirstRegisters(resultOfEmployeesInMySQL);
+            offset += 100
+            if (resultOfEmployeesInMySQL.length < 100) {
+                hasNext = false;
+            }
+        }
     }
 
     async insertEmployeesFromMYSQLToMongo(){
@@ -41,18 +49,20 @@ class UseCase {
     }
 
     async insertFirstRegisters(resultOfEmployeesInMySQL){
+        let finalList = [];
         for (let i = 0; i < resultOfEmployeesInMySQL.length; i++) {
             const employee = resultOfEmployeesInMySQL[i];
             const employeeNumber = employee.emp_no;
 
-            await this.insertOneEmployeeInMongo(employeeNumber, employee);
+            const employeeAdapted = await this.adaptEmployeeDocumentToMongo(employeeNumber, employee);
+            finalList.push(employeeAdapted);
         }
+        await this.insertManyEmployeesToMongo(finalList);
     }
 
-    async insertOneEmployeeInMongo(employeeNumber, employee){
+    async adaptEmployeeDocumentToMongo(employeeNumber, employee){
         const salaryEntity = new Salary();
         const titleEntity = new Title();
-        const mongoDataBaseConnection = new MongoDataBaseConnection();
         const departmentEmployeeEntity = new DepartmentEmployee();
         const departmentEmployeeManagerEntity = new DepartmentManager();
 
@@ -65,7 +75,16 @@ class UseCase {
         employee.dataValues.titles = this.transformListToFormatted(resultOfTitles);
         employee.dataValues.dept_emp = this.transformListToFormattedWithDepartment(resultOfDepartmentEmployees);
         employee.dataValues.dept_manager = this.transformListToFormattedWithDepartment(resultOfDepartmentManagers);
+        return employee.dataValues;
+    }
 
+    async insertManyEmployeesToMongo(finalList){
+        const mongoDataBaseConnection = new MongoDataBaseConnection();
+        await mongoDataBaseConnection.includeManyEmployees(finalList);
+    }
+
+    async insertOneEmployeeInMongo(employeeNumber, employee){
+        const mongoDataBaseConnection = new MongoDataBaseConnection();
         await mongoDataBaseConnection.includeOneEmployee(employee.dataValues);
     }
 

@@ -5,7 +5,7 @@ const MONGO_DATABASE_PORT = process.env.MONGO_DATABASE_PORT;
 
 class MongoDataBaseConnection {
     async start(){
-        const uri = `mongodb://localhost:27023`;
+        const uri = `mongodb://192.168.3.21:27023`;
         const client = new MongoClient(uri);
         return  client.connect()
     }
@@ -15,6 +15,14 @@ class MongoDataBaseConnection {
             const db = client.db("db");
             const collection = db.collection("employees");
             collection.insertOne(employee)
+        })
+    }
+
+    async includeManyEmployees(listOfEmployees){
+        this.start().then((client) =>{
+            const db = client.db("db");
+            const collection = db.collection("employees");
+            collection.insertMany(listOfEmployees)
         })
     }
 

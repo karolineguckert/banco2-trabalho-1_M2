@@ -2,9 +2,9 @@ import { DataTypes, Model, Op } from 'sequelize';
 import sequelize from '../../helper/DataBaseConnection.js';
 
 class Employee extends Model {
-    getAllEmployees() {
+    getAllEmployees(offset) {
         try {
-            return Employee.findAll({limit: 10});
+            return Employee.findAll({limit: 100, offset: offset});
         }
         catch(e){
             console.error("ERROR getAllEmployees ---- ", e);
