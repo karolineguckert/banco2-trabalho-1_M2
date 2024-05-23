@@ -13,9 +13,16 @@ class UseCase {
         return employeeEntity.getAllEmployees();
     }
 
+    async insertFirstsEmployeesFromMYSQLToMongo(){
+        this.getAllEmployees().then((resultOfEmployeesInMySQL)=> {
+            this.insertFirstRegisters(resultOfEmployeesInMySQL);
+        });
+    }
+
     async insertEmployeesFromMYSQLToMongo(){
-        const resultOfEmployeesInMySQL = await this.getAllEmployees();
-        await this.insertRegisters(resultOfEmployeesInMySQL);
+        this.getAllEmployees().then((resultOfEmployeesInMySQL) => {
+            this.insertRegisters(resultOfEmployeesInMySQL);
+        });
     }
 
     async insertRegisters(resultOfEmployeesInMySQL){
