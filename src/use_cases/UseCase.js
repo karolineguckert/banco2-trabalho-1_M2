@@ -3,7 +3,8 @@ import Salary from "../mysql/entity/Salary.js";
 import Title from "../mysql/entity/Title.js";
 import DepartmentEmployee from "../mysql/entity/DepartmentEmployee.js";
 import DepartmentManager from "../mysql/entity/DepartmentManager.js";
-
+import {MongoClient} from "mongodb";
+import MongoDataBaseConnection from "../helper/MongoDataBaseConnection.js";
 
 class UseCase {
 
@@ -15,8 +16,9 @@ class UseCase {
         const departmentEmployeeManagerEntity = new DepartmentManager();
 
         const resultOfEmployeesInMySQL = await employeeEntity.getAllEmployees();
+        const mongoDataBaseConnection = new MongoDataBaseConnection();
 
-        for (let i = 0; i < resultOfEmployeesInMySQL; i++) {
+        for (let i = 0; i < resultOfEmployeesInMySQL.length; i++) {
             const employee = resultOfEmployeesInMySQL[i];
             const employeeNumber = employee.emp_no;
 
@@ -30,7 +32,19 @@ class UseCase {
             employee.dataValues.dept_emp = this.transformListToFormattedWithDepartment(resultOfDepartmentEmployees);
             employee.dataValues.dept_manager = this.transformListToFormattedWithDepartment(resultOfDepartmentManagers);
 
+            // const uri = `mongodb://localhost:27023`;
+            // const client = new MongoClient(uri);
+            // await client.connect().then(function (){
+            //     const db = client.db("db");
+            //     const collection = db.collection("employees");
+            //     collection.insertOne(employee.dataValues);
+            // })
 
+            mongoDataBaseConnection.start().then((client) =>{
+                const db = client.db("db");
+                const collection = db.collection("employees");
+                collection.insertOne(employee.dataValues)
+            })
         }
 
     }
