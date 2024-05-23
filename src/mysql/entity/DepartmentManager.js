@@ -3,12 +3,12 @@ import sequelize from '../../helper/DataBaseConnection.js';
 import Employee from "./Employee.js";
 import Department from "./Department.js";
 class DepartmentManager extends Model {
-    getAllDepartmentsManagersByEmployeeNumber(emp_no) {
+    getAllDepartmentsManagersByDepartmentNumber(dept_no) {
         try {
-            return DepartmentManager.findAll({where: emp_no, include: [Department]});
+            return DepartmentManager.findAll({where: {dept_no: dept_no}, include: [Department, Employee]});
         }
         catch(e){
-            console.error("ERROR getAllDepartmentsManagersByEmployeeNumber---- ", e);
+            console.error("ERROR getAllDepartmentsManagersByDepartmentNumber---- ", e);
         }
     }
 }

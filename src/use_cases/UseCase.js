@@ -68,12 +68,21 @@ class UseCase {
         const resultOfSalaries= await salaryEntity.getAllSalariesByEmployeeNumber(employeeNumber);
         const resultOfTitles = await titleEntity.getAllTitlesByEmployeeNumber(employeeNumber);
         const resultOfDepartmentEmployees = await departmentEmployeeEntity.getAllDepartmentsEmployeesByEmployeeNumber(employeeNumber);
-        const resultOfDepartmentManagers = await departmentEmployeeManagerEntity.getAllDepartmentsManagersByEmployeeNumber(employeeNumber);
+
+        const auxDepartmentManagers = [];
+
+        for (let i = 0; i < resultOfDepartmentEmployees.length; i++) {
+            const resultOfDepartmentManagers = await departmentEmployeeManagerEntity.getAllDepartmentsManagersByDepartmentNumber(resultOfDepartmentEmployees[i].dataValues.dept_no);
+
+            for (let j = 0; j < resultOfDepartmentManagers.length; j++) {
+                auxDepartmentManagers.push(resultOfDepartmentManagers[j])
+            }
+        }
 
         employee.dataValues.salaries = this.transformListToFormatted(resultOfSalaries);
         employee.dataValues.titles = this.transformListToFormatted(resultOfTitles);
         employee.dataValues.dept_emp = this.transformListToFormattedWithDepartment(resultOfDepartmentEmployees);
-        employee.dataValues.dept_manager = this.transformListToFormattedWithDepartment(resultOfDepartmentManagers);
+        employee.dataValues.dept_manager = this.transformListToFormattedWithDepartmentAndEmployee(auxDepartmentManagers);
         return employee.dataValues;
     }
 
@@ -101,6 +110,18 @@ class UseCase {
             const element = resultList[i].dataValues;
 
             element.department = element.department.dept_name;
+            newList.push(element)
+        }
+        return newList;
+    }
+
+    transformListToFormattedWithDepartmentAndEmployee(resultList){
+        let newList = [];
+        for (let i = 0; i < resultList.length; i++) {
+            const element = resultList[i].dataValues;
+
+            element.department = element.department.dept_name;
+            element.employee = element.employee.dataValues.first_name;
             newList.push(element)
         }
         return newList;
