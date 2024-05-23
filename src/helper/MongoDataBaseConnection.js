@@ -24,7 +24,6 @@ class MongoDataBaseConnection {
             const collection = db.collection("employees");
             collection.findOne({emp_no: employeeNumber}).then(result => {return result});
         })
-        return null;
     }
 }
 
