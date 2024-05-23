@@ -17,7 +17,7 @@ class Main {
         // const title = new Title();
         const useCase = new UseCase();
 
-        await useCase.getAllEmployees()
+        await useCase.insertEmployeesFromMYSQLToMongo()
     }
 
 }

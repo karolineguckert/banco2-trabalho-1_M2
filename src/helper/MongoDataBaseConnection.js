@@ -9,6 +9,23 @@ class MongoDataBaseConnection {
         const client = new MongoClient(uri);
         return  client.connect()
     }
+
+    async includeOneEmployee(employee){
+        this.start().then((client) =>{
+            const db = client.db("db");
+            const collection = db.collection("employees");
+            collection.insertOne(employee)
+        })
+    }
+
+    async findOneByEmployeeNumber(employeeNumber){
+        this.start().then((client) =>{
+            const db = client.db("db");
+            const collection = db.collection("employees");
+            collection.findOne({emp_no: employeeNumber}).then(result => {return result});
+        })
+        return null;
+    }
 }
 
 

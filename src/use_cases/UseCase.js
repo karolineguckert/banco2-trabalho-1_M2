@@ -10,43 +10,56 @@ class UseCase {
 
     async getAllEmployees() {
         const employeeEntity = new Employee();
-        const salaryEntity = new Salary();
-        const titleEntity = new Title();
-        const departmentEmployeeEntity = new DepartmentEmployee();
-        const departmentEmployeeManagerEntity = new DepartmentManager();
+        return employeeEntity.getAllEmployees();
+    }
 
-        const resultOfEmployeesInMySQL = await employeeEntity.getAllEmployees();
+    async insertEmployeesFromMYSQLToMongo(){
+        const resultOfEmployeesInMySQL = await this.getAllEmployees();
+        await this.insertRegisters(resultOfEmployeesInMySQL);
+    }
+
+    async insertRegisters(resultOfEmployeesInMySQL){
         const mongoDataBaseConnection = new MongoDataBaseConnection();
 
         for (let i = 0; i < resultOfEmployeesInMySQL.length; i++) {
             const employee = resultOfEmployeesInMySQL[i];
             const employeeNumber = employee.emp_no;
 
-            const resultOfSalaries= await salaryEntity.getAllSalariesByEmployeeNumber(employeeNumber);
-            const resultOfTitles = await titleEntity.getAllTitlesByEmployeeNumber(employeeNumber);
-            const resultOfDepartmentEmployees = await departmentEmployeeEntity.getAllDepartmentsEmployeesByEmployeeNumber(employeeNumber);
-            const resultOfDepartmentManagers = await departmentEmployeeManagerEntity.getAllDepartmentsManagersByEmployeeNumber(employeeNumber);
-
-            employee.dataValues.salaries = this.transformListToFormatted(resultOfSalaries);
-            employee.dataValues.titles = this.transformListToFormatted(resultOfTitles);
-            employee.dataValues.dept_emp = this.transformListToFormattedWithDepartment(resultOfDepartmentEmployees);
-            employee.dataValues.dept_manager = this.transformListToFormattedWithDepartment(resultOfDepartmentManagers);
-
-            // const uri = `mongodb://localhost:27023`;
-            // const client = new MongoClient(uri);
-            // await client.connect().then(function (){
-            //     const db = client.db("db");
-            //     const collection = db.collection("employees");
-            //     collection.insertOne(employee.dataValues);
-            // })
-
-            mongoDataBaseConnection.start().then((client) =>{
-                const db = client.db("db");
-                const collection = db.collection("employees");
-                collection.insertOne(employee.dataValues)
-            })
+            mongoDataBaseConnection.findOneByEmployeeNumber(employeeNumber).then(result => {
+                if(result){
+                    this.insertOneEmployeeInMongo(employeeNumber, employee)
+                }
+            });
         }
+    }
 
+    async insertFirstRegisters(resultOfEmployeesInMySQL){
+        for (let i = 0; i < resultOfEmployeesInMySQL.length; i++) {
+            const employee = resultOfEmployeesInMySQL[i];
+            const employeeNumber = employee.emp_no;
+
+            await this.insertOneEmployeeInMongo(employeeNumber, employee);
+        }
+    }
+
+    async insertOneEmployeeInMongo(employeeNumber, employee){
+        const salaryEntity = new Salary();
+        const titleEntity = new Title();
+        const mongoDataBaseConnection = new MongoDataBaseConnection();
+        const departmentEmployeeEntity = new DepartmentEmployee();
+        const departmentEmployeeManagerEntity = new DepartmentManager();
+
+        const resultOfSalaries= await salaryEntity.getAllSalariesByEmployeeNumber(employeeNumber);
+        const resultOfTitles = await titleEntity.getAllTitlesByEmployeeNumber(employeeNumber);
+        const resultOfDepartmentEmployees = await departmentEmployeeEntity.getAllDepartmentsEmployeesByEmployeeNumber(employeeNumber);
+        const resultOfDepartmentManagers = await departmentEmployeeManagerEntity.getAllDepartmentsManagersByEmployeeNumber(employeeNumber);
+
+        employee.dataValues.salaries = this.transformListToFormatted(resultOfSalaries);
+        employee.dataValues.titles = this.transformListToFormatted(resultOfTitles);
+        employee.dataValues.dept_emp = this.transformListToFormattedWithDepartment(resultOfDepartmentEmployees);
+        employee.dataValues.dept_manager = this.transformListToFormattedWithDepartment(resultOfDepartmentManagers);
+
+        await mongoDataBaseConnection.includeOneEmployee(employee.dataValues);
     }
 
     transformListToFormatted(resultList){
